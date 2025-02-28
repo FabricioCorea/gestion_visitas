@@ -1,0 +1,50 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+#sidebar {
+  width: 250px;
+  min-height: 100vh;
+  transition: all 0.3s;
+  position: fixed;
+}
+
+#sidebar ul.components {
+  padding: 20px 0;
+}
+
+#sidebar ul li a {
+  padding: 10px;
+  display: block;
+  text-decoration: none;
+}
+
+#sidebar ul li a:hover {
+  background: #007bff;
+  text-decoration: none;
+}
+
+#sidebar.active {
+  margin-left: -250px;
+}
+
+/* Contenido principal */
+#content {
+  margin-left: 250px;
+  transition: margin-left 0.3s;
+}
+
+@media (max-width: 768px) {
+  #sidebar {
+      margin-left: -250px;
+  }
+
+  #sidebar.active {
+      margin-left: 0;
+  }
+
+  #content {
+      margin-left: 0;
+  }
+}
