@@ -11,5 +11,8 @@ urlpatterns = [
     path('login/', vistasUsuarios.user_login, name='login'),  
     path("logout/", vistasUsuarios.user_logout, name="logout"),  
     path('usuarios/', vistasUsuarios.user_list, name='usuarios'), 
-    
+    path('usuarios/cambiar_estado/<int:userId>/', vistasUsuarios.cambiar_estado_usuario, name='cambiar_estado_usuario'),
+
 ]
+    
+

@@ -1,231 +1,226 @@
 {% extends 'layout/layout.html' %}
 
+{% block title %}Lista de Usuarios{% endblock %}
+
 {% block content %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Usuarios</title>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        body {
-            background-color: #f5f5f5;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
+<div class="container">
+    <h2>Gestión de Usuarios</h2>
 
-        .container {
-            width: 100%;
-            max-width: 1100px;
-            margin: auto;
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            color: white;
-        }
-
-        .btn-add {
-            background: #4b79a1;
-        }
-
-        .btn-add:hover {
-            background: #3a5f7d;
-        }
-
-        .search-box {
-            padding: 8px;
-            width: 250px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background: #4b79a1;
-            color: white;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .btn-status {
-            cursor: pointer;
-            font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .active {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .inactive {
-            background: #E74C3C;
-            color: white;
-        }
-
-        .btn-edit {
-            background: #f39c12;
-            color: white;
-            padding: 6px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn-edit:hover {
-            background: #e67e22;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Gestión de Usuarios</h2>
-
-        <div class="actions">
-            <button class="btn btn-add">➕ Agregar Usuario</button>
-            <input type="text" id="searchInput" class="search-box" placeholder="Buscar usuario...">
-        </div>
-
-        <div class="table-responsive">
-            <table id="userTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Usuario</th>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Rol</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.first_name }}</td>
-                        <td>{{ user.last_name }}</td>
-                        <td>
-                            {% for group in user.groups.all %}
-                                {{ group.name }}{% if not forloop.last %}, {% endif %}
-                            {% empty %}
-                                Sin rol
-                            {% endfor %}
-                        </td>
-                        <td>
-                            <span class="btn-status {% if user.is_active %}active{% else %}inactive{% endif %}" 
-                                  onclick="toggleStatus({{ user.id }}, this)">
-                                {% if user.is_active %}Activo{% else %}Inactivo{% endif %}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn-edit">✏️ Editar</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="actions">
+        <button class="btn btn-add">Agregar Usuario</button>
+        <input type="text" id="searchInput" class="search-box" placeholder="Buscar usuario...">
     </div>
 
-    <script>
-        // Función para buscar usuarios en la tabla
-        document.getElementById("searchInput").addEventListener("keyup", function() {
-            let searchValue = this.value.toLowerCase();
-            let rows = document.querySelectorAll("#userTable tbody tr");
+    <div class="table-responsive">
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.first_name }}</td>
+                    <td>{{ user.last_name }}</td>
+                    <td>
+                        {% for group in user.groups.all %}
+                            {{ group.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Sin rol
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <span class="btn-status {% if user.is_active %}active{% else %}inactive{% endif %}" 
+                              onclick="toggleStatus({{ user.id }}, this)">
+                            {% if user.is_active %}Activo{% else %}Inactivo{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-edit">Editar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-            rows.forEach(row => {
-                let userData = row.textContent.toLowerCase();
-                row.style.display = userData.includes(searchValue) ? "" : "none";
-            });
+<style>
+    .container {
+        width: 100%;
+        max-width: 1100px;
+        margin: auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        color: white;
+    }
+
+    .btn-add {
+        background: #4b79a1;
+    }
+
+    .btn-add:hover {
+        background: #3a5f7d;
+    }
+
+    .search-box {
+        padding: 8px;
+        width: 250px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background: #4b79a1;
+        color: white;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn-status {
+        cursor: pointer;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .active {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .inactive {
+        background: #E74C3C;
+        color: white;
+    }
+
+    .btn-edit {
+        background: #f39c12;
+        color: white;
+        padding: 6px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-edit:hover {
+        background: #e67e22;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+        let searchValue = this.value.toLowerCase();
+        let rows = document.querySelectorAll("#userTable tbody tr");
+
+        rows.forEach(row => {
+            let userData = row.textContent.toLowerCase();
+            row.style.display = userData.includes(searchValue) ? "" : "none";
         });
+    });
 
-        // Función para cambiar estado del usuario con SweetAlert
-        function toggleStatus(userId, element) {
-            let currentState = element.classList.contains("active");
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
 
-            Swal.fire({
-                title: "¿Estás seguro?",
-                text: "El estado del usuario será cambiado.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#4CAF50",
-                cancelButtonColor: "#E74C3C",
-                confirmButtonText: "Sí, cambiar",
-                cancelButtonText: "Cancelar"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/usuarios/cambiar_estado/${userId}/`, {
-                        method: "POST",
-                        headers: {
-                            "X-CSRFToken": "{{ csrf_token }}",
-                            "Content-Type": "application/json"
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            if (currentState) {
-                                element.classList.remove("active");
-                                element.classList.add("inactive");
-                                element.textContent = "Inactivo";
-                            } else {
-                                element.classList.remove("inactive");
-                                element.classList.add("active");
-                                element.textContent = "Activo";
-                            }
-                            Swal.fire("¡Cambiado!", "El estado ha sido actualizado.", "success");
+    function toggleStatus(userId, element) {
+        let currentState = element.classList.contains("active");
+
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "El estado del usuario será cambiado.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#4CAF50",
+            cancelButtonColor: "#E74C3C",
+            confirmButtonText: "Sí, cambiar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`${window.location.origin}/usuarios/cambiar_estado/${userId}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCSRFToken(),
+                        "Content-Type": "application/json"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (currentState) {
+                            element.classList.remove("active");
+                            element.classList.add("inactive");
+                            element.textContent = "Inactivo";
                         } else {
-                            Swal.fire("Error", "No se pudo cambiar el estado.", "error");
+                            element.classList.remove("inactive");
+                            element.classList.add("active");
+                            element.textContent = "Activo";
                         }
-                    });
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+                        Swal.fire("¡Cambiado!", "El estado ha sido actualizado.", "success");
+                    } else {
+                        Swal.fire("Error", data.error, "error");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    Swal.fire("Error", "Ocurrió un problema en la solicitud.", "error");
+                });
+            }
+        });
+    }
+</script>
 {% endblock %}

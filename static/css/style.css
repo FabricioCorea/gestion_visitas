@@ -1,50 +1,318 @@
+/* Estilo base */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
+  background-color: #e6e6e6;
+  overflow-x: hidden;
 }
 
-#sidebar {
-  width: 250px;
-  min-height: 100vh;
-  transition: all 0.3s;
+/* Navbar superior fijo */
+.navbar {
   position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
 }
 
-#sidebar ul.components {
-  padding: 20px 0;
+.navbar-brand {
+  font-size: 18px;
+  font-weight: bold;
+  color: #184072 !important;
 }
 
-#sidebar ul li a {
-  padding: 10px;
-  display: block;
-  text-decoration: none;
+.navbar .btn {
+  background-color: #184072;
+  color: white;
 }
 
-#sidebar ul li a:hover {
-  background: #007bff;
-  text-decoration: none;
+.navbar .btn:hover {
+  background-color: #112b4d;
 }
 
-#sidebar.active {
-  margin-left: -250px;
+/* Botón de menú en el navbar */
+#sidebarCollapse {
+  background-color: #184072 !important;
+  color: white !important;
+  border: none;
+  margin-right: 10px;
 }
 
-/* Contenido principal */
-#content {
+#sidebarCollapse:hover {
+  background-color: #112b4d !important;
+}
+
+/* Sidebar fijo */
+#sidebar {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  width: 250px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  background-color: #ffffff;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  padding-top: 10px;
+  z-index: 1050;
+}
+
+/* Ocultar sidebar en móviles y cuando está colapsado */
+#sidebar.collapsed {
+  left: -250px;
+}
+
+/* Ajuste del contenedor cuando el sidebar está colapsado */
+#main-container {
   margin-left: 250px;
-  transition: margin-left 0.3s;
+  padding: 80px 20px;
+  transition: margin-left 0.3s ease-in-out;
+  min-height: 100vh;
 }
 
+/* Ajuste cuando el sidebar está colapsado en escritorio */
+#main-container.collapsed {
+  margin-left: 0;
+}
+
+/* Ajuste en móviles: el contenido se mueve cuando el sidebar está abierto */
 @media (max-width: 768px) {
   #sidebar {
-      margin-left: -250px;
+      left: -250px;
+  }
+
+  #sidebar.collapsed {
+      left: -250px;
   }
 
   #sidebar.active {
-      margin-left: 0;
+      left: 0;
   }
 
-  #content {
+  #main-container {
       margin-left: 0;
+      transition: margin-left 0.3s ease-in-out;
+  }
+
+  #main-container.sidebar-open {
+      margin-left: 250px; /* Se mueve cuando el sidebar está abierto */
+  }
+}
+
+/* Enlaces del sidebar */
+#sidebar ul {
+  padding: 0;
+}
+
+#sidebar ul li {
+  list-style: none;
+}
+
+#sidebar ul li a {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  text-decoration: none;
+  border-radius: 10px;
+  color: #184072 !important;
+  font-weight: bold;
+  transition: background 0.3s, color 0.3s;
+}
+
+#sidebar ul li a i {
+  margin-right: 10px;
+  color: #184072 !important;
+}
+
+#sidebar ul li a:hover {
+  background: #184072;
+  color: white !important;
+}
+
+#sidebar ul li a:hover i {
+  color: white !important;
+}
+
+/* Contenedor principal */
+.container {
+  width: 90%;
+  max-width: 1100px;
+  margin: auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #184072;
+}
+
+/* Botones */
+.btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  color: white;
+}
+
+.btn-add {
+  background: #184072;
+}
+
+.btn-add:hover {
+  background: #112b4d;
+  color: white;
+}
+
+/* Caja de búsqueda */
+.search-box {
+  padding: 8px;
+  width: 250px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Tablas */
+.table-responsive {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background: #184072;
+  color: white;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Botones de estado */
+.btn-status {
+  cursor: pointer;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.active {
+  background: #4CAF50;
+  color: white;
+}
+
+.inactive {
+  background: #E74C3C;
+  color: white;
+}
+
+/* Botón de edición */
+.btn-edit {
+  background: #f39c12;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-edit:hover {
+  background: #e67e22;
+}
+
+/* Formularios */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Ajustes para tablas */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.table th {
+  background: #184072;
+  color: white;
+}
+
+.table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Ajustes para botones dentro de la tabla */
+.table .btn {
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 3px;
+}
+
+.btn-delete {
+  background: #e74c3c;
+}
+
+.btn-delete:hover {
+  background: #c0392b;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .actions {
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+  }
+
+  .search-box {
+      width: 100%;
+  }
+
+  table {
+      font-size: 14px;
+  }
+
+  th, td {
+      padding: 8px;
   }
 }
