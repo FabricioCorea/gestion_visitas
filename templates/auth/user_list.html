@@ -39,10 +39,13 @@
                         {% endfor %}
                     </td>
                     <td>
-                        <span class="btn-status {% if user.is_active %}active{% else %}inactive{% endif %}" 
-                              onclick="toggleStatus({{ user.id }}, this)">
-                            {% if user.is_active %}Activo{% else %}Inactivo{% endif %}
-                        </span>
+                        <label class="switch">
+                            <input type="checkbox" 
+                                   class="toggle-status"
+                                   data-user-id="{{ user.id }}"
+                                   {% if user.is_active %}checked{% endif %}>
+                            <span class="slider round"></span>
+                        </label>
                     </td>
                     <td>
                         <button class="btn-edit">Editar</button>
@@ -126,24 +129,6 @@
         background-color: #f1f1f1;
     }
 
-    .btn-status {
-        cursor: pointer;
-        font-weight: bold;
-        padding: 5px 10px;
-        border-radius: 5px;
-        text-align: center;
-    }
-
-    .active {
-        background: #4CAF50;
-        color: white;
-    }
-
-    .inactive {
-        background: #E74C3C;
-        color: white;
-    }
-
     .btn-edit {
         background: #f39c12;
         color: white;
@@ -155,6 +140,52 @@
 
     .btn-edit:hover {
         background: #e67e22;
+    }
+
+    /* Estilos para el switch (toggle) */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 34px;
+        height: 20px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #4CAF50;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(14px);
     }
 </style>
 {% endblock %}
@@ -173,54 +204,39 @@
         });
     });
 
-    function getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]').value;
-    }
+    document.querySelectorAll('.toggle-status').forEach(switchButton => {
+        switchButton.addEventListener('change', function() {
+            let userId = this.getAttribute('data-user-id');
+            let isChecked = this.checked;
 
-    function toggleStatus(userId, element) {
-        let currentState = element.classList.contains("active");
-
-        Swal.fire({
-            title: "¿Estás seguro?",
-            text: "El estado del usuario será cambiado.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#4CAF50",
-            cancelButtonColor: "#E74C3C",
-            confirmButtonText: "Sí, cambiar",
-            cancelButtonText: "Cancelar"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`${window.location.origin}/usuarios/cambiar_estado/${userId}/`, {
-                    method: "POST",
-                    headers: {
-                        "X-CSRFToken": getCSRFToken(),
-                        "Content-Type": "application/json"
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        if (currentState) {
-                            element.classList.remove("active");
-                            element.classList.add("inactive");
-                            element.textContent = "Inactivo";
-                        } else {
-                            element.classList.remove("inactive");
-                            element.classList.add("active");
-                            element.textContent = "Activo";
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `¿Quieres cambiar el estado del usuario a ${isChecked ? 'Activo' : 'Inactivo'}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, cambiar',
+                cancelButtonText: 'No, cancelar',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/usuarios/cambiar_estado/${userId}/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
                         }
-                        Swal.fire("¡Cambiado!", "El estado ha sido actualizado.", "success");
-                    } else {
-                        Swal.fire("Error", data.error, "error");
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    Swal.fire("Error", "Ocurrió un problema en la solicitud.", "error");
-                });
-            }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            Swal.fire("Error", "No se pudo cambiar el estado.", "error");
+                            this.checked = !isChecked; // Revertir el cambio si hay un error
+                        }
+                    });
+                } else {
+                    this.checked = !isChecked; // Revertir el cambio si se cancela
+                }
+            });
         });
-    }
+    });
 </script>
 {% endblock %}
