@@ -151,6 +151,13 @@ LOGIN_URL = 'login'  # Ruta de la página de login
 LOGIN_REDIRECT_URL = 'inicio'  # Página a la que será redirigido tras autenticación
 LOGOUT_REDIRECT_URL = 'login'  # Página tras cerrar sesión
 
+# Configuración de Cookies de Sesión
+#SESSION_COOKIE_AGE = 1800  Expiración en 1800 segundos (30 minutos)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expira al cerrar el navegador
+SESSION_COOKIE_SECURE = False  # Activar en producción con HTTPS (poner True si usas HTTPS)
+SESSION_COOKIE_HTTPONLY = True  # Evita acceso a la cookie por JavaScript
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Guarda sesiones en la base de datos
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

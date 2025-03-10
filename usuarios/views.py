@@ -1,13 +1,11 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.core.cache import cache
-from django.db.models import Q
-from django.utils.timezone import now
-import json
+
 # Vista de login
 def user_login(request):
     if request.method == "POST":
@@ -15,7 +13,6 @@ def user_login(request):
         password = request.POST.get("password")
 
         try:
-            # Verificar si el usuario existe antes de autenticarlo
             user = User.objects.get(username=username)
             if not user.is_active:
                 messages.warning(request, "Tu cuenta está inactiva. Contacta al administrador.")
@@ -23,12 +20,11 @@ def user_login(request):
         except User.DoesNotExist:
             user = None
 
-        # Autenticar usuario solo si existe y está activo
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            auth_login(request, user)  # Iniciar sesión
-            return redirect("inicio")  # Redirige a la página principal
+            auth_login(request, user)
+            return redirect("inicio")
         else:
             messages.warning(request, "Usuario o contraseña incorrectos.")
 
@@ -37,7 +33,7 @@ def user_login(request):
 # Vista de logout
 def user_logout(request):
     auth_logout(request)
-    return redirect("login")  # Redirige a la página de login
+    return redirect("login")
 
 # Vista de lista de usuarios con restricciones de grupo
 @login_required
@@ -45,25 +41,97 @@ def user_list(request):
     is_super_admin_group = request.user.groups.filter(name='super_admin').exists()
     is_admin_group = request.user.groups.filter(name='admin_group').exists()
 
-    # Filtrar usuarios según el grupo del usuario autenticado
     if is_super_admin_group:
-        users = User.objects.prefetch_related('groups').all()  # ✅ Super Admin ve todos los usuarios
+        users = User.objects.prefetch_related('groups').all()
     elif is_admin_group:
-        users = User.objects.prefetch_related('groups').exclude(groups__name="super_admin")  # ✅ Admin NO ve super_admin
+        users = User.objects.prefetch_related('groups').exclude(groups__name="super_admin")
     else:
         messages.error(request, "Acceso no permitido.")
-        return redirect("inicio")  # ✅ Bloquear acceso a otros roles
+        return redirect("inicio")
 
+    groups = Group.objects.all()
+    
     return render(request, 'auth/user_list.html', {
         'users': users,
+        'groups': groups,
         'is_super_admin_group': is_super_admin_group,
         'is_admin_group': is_admin_group
     })
+
+# Vista para agregar un nuevo usuario
+@login_required
+def add_user(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        group_name = request.POST.get('group', None)
+
+        if User.objects.filter(username=username).exists():
+            messages.warning(request, "El nombre de usuario ya está registrado.")
+            return redirect('agregar_usuario')
+
+        new_user = User.objects.create_user(
+            username=username,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
+
+        if group_name:
+            group = Group.objects.get(name=group_name)
+            new_user.groups.add(group)
+
+        messages.success(request, "Usuario creado correctamente.")
+        return redirect('usuarios')
+
+    return redirect('usuarios')
+
 @csrf_exempt
 def toggle_user_status(request, user_id):
     if request.method == "POST":
         user = get_object_or_404(User, id=user_id)
-        user.is_active = not user.is_active  # Alternar estado
+        user.is_active = not user.is_active
         user.save()
-        return JsonResponse({"success": True, "new_status": user.is_active})
-    return JsonResponse({"success": False}, status=400)
+        message = "El estado del usuario se cambió correctamente."
+        return JsonResponse({"success": True, "new_status": user.is_active, "message": message})
+    return JsonResponse({"success": False, "message": "Error al actualizar estado"}, status=400)
+
+# Vista para editar usuario
+@login_required
+def edit_user(request):
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        group_name = request.POST.get("group")
+
+        try:
+            user = User.objects.get(id=user_id)
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
+
+            if group_name:
+                user.groups.clear()
+                group = Group.objects.get(name=group_name)
+                user.groups.add(group)
+
+            messages.success(request, "Usuario actualizado correctamente.")
+        except User.DoesNotExist:
+            messages.error(request, "El usuario no existe.")
+
+    return redirect("usuarios")
+
+@login_required
+def delete_user(request, user_id):
+    if request.method == "POST":
+        user = get_object_or_404(User, id=user_id)
+        user.delete()
+        message = "Usuario eliminado correctamente."
+
+        return JsonResponse({"success": True, "message": message})
+    
+    return JsonResponse({"success": False, "message": "Método no permitido."}, status=400)
+

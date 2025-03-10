@@ -48,10 +48,10 @@
     <!-- Sidebar fijo -->
     <nav id="sidebar">
         <ul class="list-unstyled components">
-            <li><a href="{% url 'inicio' %}"><i class="fas fa-home"></i> Inicio</a></li>
-            <li><a href="{% url 'nuevavisita' %}"><i class="fas fa-users"></i> Visitas</a></li>
-            <li><a href="{% url 'inicio' %}"><i class="fas fa-ban"></i> Lista Negra</a></li>
-            <li><a href="{% url 'usuarios' %}"><i class="fas fa-user"></i> Usuarios</a></li>
+            <li><a href="{% url 'inicio' %}" class="sidebar-link"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="{% url 'nuevavisita' %}" class="sidebar-link"><i class="fas fa-users"></i> Visitas</a></li>
+            <li><a href="{% url 'inicio' %}" class="sidebar-link"><i class="fas fa-ban"></i> Lista Negra</a></li>
+            <li><a href="{% url 'usuarios' %}" class="sidebar-link"><i class="fas fa-user"></i> Usuarios</a></li>
         </ul>
     </nav>    
 
@@ -64,31 +64,36 @@
     </div>
 </div>
 
-<!-- JavaScript embebido corregido -->
+<!-- JavaScript para Sidebar y Activar Menú -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarCollapse');
         const mainContainer = document.getElementById('main-container');
+        const sidebarLinks = document.querySelectorAll(".sidebar-link");
+        
+        // Activar enlace según la URL actual
+        let currentUrl = window.location.pathname;
+        sidebarLinks.forEach(link => {
+            if (link.getAttribute("href") === currentUrl) {
+                link.parentElement.classList.add("active");
+            }
+        });
 
         function adjustSidebar() {
             if (window.innerWidth >= 768) {
-                // En pantallas grandes, el sidebar debe estar siempre visible
                 sidebar.classList.remove("collapsed");
                 sidebar.style.left = "0";
                 mainContainer.classList.remove("collapsed");
             } else {
-                // En pantallas pequeñas, el sidebar debe iniciar oculto
                 sidebar.classList.add("collapsed");
                 sidebar.style.left = "-250px";
             }
         }
 
-        // Ajustar el sidebar cuando se cambia el tamaño de la pantalla
         window.addEventListener("resize", adjustSidebar);
-        adjustSidebar(); // Llamada inicial para ajustar según la pantalla actual
+        adjustSidebar();
 
-        // Evento para abrir/cerrar el sidebar
         sidebarToggle.addEventListener("click", function () {
             if (sidebar.classList.contains("collapsed")) {
                 sidebar.classList.remove("collapsed");
@@ -97,7 +102,6 @@
                 sidebar.classList.add("collapsed");
                 sidebar.style.left = "-250px";
             }
-
             mainContainer.classList.toggle("collapsed");
         });
     });
