@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from visitantes.models import *
 @login_required(login_url="login")
 
 # Vista de inicio
@@ -13,6 +13,54 @@ def index(request):
     return render(request, 'inicio/inicio.html')
 
 @login_required(login_url="login")
-# Vista de nueva visita
+@login_required(login_url="login")
 def nuevaVisita(request):
-    return render(request, 'visitantes/nueva-visita.html')
+    if request.method == "POST":
+        # Obtener datos del formulario
+        visitante_nombres = request.POST.getlist("visitante_nombre[]")
+        visitante_documentos = request.POST.getlist("visitante_documento[]")
+        motivo_id = request.POST.get("motivo")
+        area_departamento_id = request.POST.get("area_departamento")
+        persona_visitada = request.POST.get("persona_visitada")
+        fecha_visita = request.POST.get("fecha_visita")
+        hora_ingreso = request.POST.get("hora_ingreso")
+        hora_salida = request.POST.get("hora_salida")
+        foto_documento_identificacion = request.FILES.get("foto_documento_identificacion")
+
+        # Crear código único de la visita
+        cod_visita = uuid.uuid4().hex[:10]
+
+        # Guardar cada visitante ingresado
+        visitantes_guardados = []
+        for nombre, documento in zip(visitante_nombres, visitante_documentos):
+            visitante, created = Visitante.objects.get_or_create(
+                documento_identificacion=documento,
+                defaults={"nombre": nombre}
+            )
+            visitantes_guardados.append(visitante)
+
+        # Crear la visita con los datos recopilados
+        visita = Visita.objects.create(
+            cod_visita=cod_visita,
+            visitante=", ".join([v.nombre for v in visitantes_guardados]),  # Lista de nombres concatenados
+            motivo=MotivoVisita.objects.get(id=motivo_id).descripcion,
+            area_departamento=AreaDepto.objects.get(id=area_departamento_id).nombre,
+            persona_visitada=persona_visitada,
+            fecha_visita=fecha_visita,
+            hora_ingreso=hora_ingreso,
+            hora_salida=hora_salida,
+            usuario_registro=request.user.username,
+            foto_documento_identificacion=foto_documento_identificacion
+        )
+
+        messages.success(request, "Visita registrada correctamente.")
+        return redirect("inicio")
+
+    # Obtener datos para el formulario
+    motivos = MotivoVisita.objects.filter(estado="activo")
+    areas = AreaDepto.objects.filter(estado="activo")
+
+    return render(request, "visitantes/nueva-visita.html", {
+        "motivos": motivos,
+        "areas": areas
+    })
