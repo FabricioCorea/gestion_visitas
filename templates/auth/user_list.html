@@ -308,21 +308,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Alertas de Django con SweetAlert -->
-{% if messages %}
-    {% for m in messages %}
-        <script>
-            Swal.fire({
-                title: "{% if m.tags == 'success' %}LISTO!{% elif m.tags == 'error' %}ERROR{% elif m.tags == 'warning' %}ADVERTENCIA{% elif m.tags == 'info' or m.tags == 'debug' %}{{ m.tags|upper }}{% endif %}",
-                text: "{{ m }}",
-                icon: "{{ m.tags }}",
-                {% if m.tags == 'success' %}showConfirmButton: false, timer: 2500{% else %}confirmButtonColor: "{% if m.tags == 'warning' %}#FDBD15{% elif m.tags == 'info' or m.tags == 'debug' %}#18314F{% else %}#57647D{% endif %}", focusConfirm: false{% endif %}
-            });
-        </script>
-    {% endfor %}
-{% endif %}
 
 <script>
     // Búsqueda de usuarios en la tabla

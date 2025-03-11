@@ -49,7 +49,7 @@
     <nav id="sidebar">
         <ul class="list-unstyled components">
             <li><a href="{% url 'inicio' %}" class="sidebar-link"><i class="fas fa-home"></i> Inicio</a></li>
-            <li><a href="{% url 'nuevavisita' %}" class="sidebar-link"><i class="fas fa-users"></i> Visitas</a></li>
+            <li><a href="{% url 'mis_visitas' %}" class="sidebar-link"><i class="fas fa-users"></i> Visitas</a></li>
             <li><a href="{% url 'inicio' %}" class="sidebar-link"><i class="fas fa-ban"></i> Lista Negra</a></li>
             <li><a href="{% url 'usuarios' %}" class="sidebar-link"><i class="fas fa-user"></i> Usuarios</a></li>
         </ul>
@@ -71,7 +71,7 @@
         const sidebarToggle = document.getElementById('sidebarCollapse');
         const mainContainer = document.getElementById('main-container');
         const sidebarLinks = document.querySelectorAll(".sidebar-link");
-        
+    
         // Activar enlace según la URL actual
         let currentUrl = window.location.pathname;
         sidebarLinks.forEach(link => {
@@ -79,35 +79,55 @@
                 link.parentElement.classList.add("active");
             }
         });
-
+    
         function adjustSidebar() {
             if (window.innerWidth >= 768) {
                 sidebar.classList.remove("collapsed");
                 sidebar.style.left = "0";
+                sidebarToggle.style.display = "none"; // Oculta el botón cuando el sidebar está visible
                 mainContainer.classList.remove("collapsed");
             } else {
                 sidebar.classList.add("collapsed");
                 sidebar.style.left = "-250px";
+                sidebarToggle.style.display = "block"; // Muestra el botón cuando el sidebar está oculto
             }
         }
-
+    
         window.addEventListener("resize", adjustSidebar);
         adjustSidebar();
-
+    
         sidebarToggle.addEventListener("click", function () {
             if (sidebar.classList.contains("collapsed")) {
                 sidebar.classList.remove("collapsed");
                 sidebar.style.left = "0";
+                sidebarToggle.style.display = "none"; // Oculta el botón cuando el sidebar está visible
             } else {
                 sidebar.classList.add("collapsed");
                 sidebar.style.left = "-250px";
+                sidebarToggle.style.display = "block"; // Muestra el botón cuando el sidebar está oculto
             }
             mainContainer.classList.toggle("collapsed");
         });
-    });
+    });    
 </script>
 
 {% block extra_js %}{% endblock %}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Alertas de Django con SweetAlert -->
+{% if messages %}
+    {% for m in messages %}
+        <script>
+            Swal.fire({
+                title: "{% if m.tags == 'success' %}LISTO!{% elif m.tags == 'error' %}ERROR{% elif m.tags == 'warning' %}ADVERTENCIA{% elif m.tags == 'info' or m.tags == 'debug' %}{{ m.tags|upper }}{% endif %}",
+                text: "{{ m }}",
+                icon: "{{ m.tags }}",
+                {% if m.tags == 'success' %}showConfirmButton: false, timer: 2500{% else %}confirmButtonColor: "{% if m.tags == 'warning' %}#FDBD15{% elif m.tags == 'info' or m.tags == 'debug' %}#18314F{% else %}#57647D{% endif %}", focusConfirm: false{% endif %}
+            });
+        </script>
+    {% endfor %}
+{% endif %}
 
 </body>
 </html>

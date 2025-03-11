@@ -6,7 +6,9 @@ from usuarios import views as vistasUsuarios
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', vistasVisitantes.index, name='inicio'),
-    path('nuevaVisita/', vistasVisitantes.nuevaVisita, name='nuevavisita'),
+    path('MisVisitas/', vistasVisitantes.visitas, name='mis_visitas'),
+    path('nuevaVisita/', vistasVisitantes.nuevaVisita, name='nueva_visita'),
+    path('editarVisita/', vistasVisitantes.nuevaVisita, name='editar_visita'),
     path('login/', vistasUsuarios.user_login, name='login'),  
     path('logout/', vistasUsuarios.user_logout, name='logout'),  
     path('usuarios/', vistasUsuarios.user_list, name='usuarios'), 
