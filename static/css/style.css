@@ -136,3 +136,14 @@ body {
 #sidebar ul li.active a i, #sidebar ul li a:hover i {
   color: white !important;
 }
+
+/*Select2*/
+.select2-results__option--highlighted {
+  background-color: #184072 !important; /* Fondo azul oscuro */
+  color: white !important; /* Texto blanco para mejor contraste */
+}
+/* Aplica el color de fondo a las opciones resaltadas */
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: #184072 !important;
+  color: white !important;
+}

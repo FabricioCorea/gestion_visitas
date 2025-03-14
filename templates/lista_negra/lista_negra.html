@@ -1,56 +1,43 @@
 {% extends 'layout/layout.html' %}
 
-{% block title %}Lista de Usuarios{% endblock %}
+{% block title %}Lista negra{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h3>Gestión de Usuarios</h3>
+    <h3>Visitantes con ingreso restringido</h3>
     <hr>
 
     <div class="actions">
-        <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addUserModal">Agregar Usuario</button>
-        <input type="text" id="searchInput" class="search-box" placeholder="Buscar usuario...">
+        <a class="btn btn-add" href="{% url 'nueva_visita' %}">Agregar visitante</a>
+        <input type="text" id="searchInput" class="search-box" placeholder="Buscar visita...">
     </div>
-
+    
     <div class="table-responsive">
         <table id="userTable">
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Usuario</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
+                    <th>Motivo de visita</th>
+                    <th>Área</th>
+                    <th>Persona visitada</th>
+                    <th>Fecha</th>
+                    <th>Hora de ingreso</th>
+                    <th>Hora de salida</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                {% for user in users %}
+                {% for visita in visitas %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.first_name }}</td>
-                    <td>{{ user.last_name }}</td>
+                    <td>{{ visita.motivo }}</td>
+                    <td>{{ visita.area_departamento }}</td>
+                    <td>{{ visita.persona_visitada }}</td>
+                    <td>{{ visita.fecha_visita }}</td>
+                    <td>{{ visita.hora_ingreso }}</td>
+                    <td>{{ visita.hora_salida }}</td>
                     <td>
-                        {% for group in user.groups.all %}
-                            {{ group.name }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            Sin rol
-                        {% endfor %}
-                    </td>
-                    <td>
-                        <!-- Switch para activar/desactivar usuario -->
-                        <label class="switch">
-                            <input type="checkbox" 
-                                   class="toggle-status"
-                                   data-user-id="{{ user.id }}"
-                                   {% if user.is_active %}checked{% endif %}>
-                            <span class="slider round"></span>
-                        </label>
-                    </td>
-                    <td>
-                        <button class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#editUserModal"
+                        <button class="btn btn-edit"
                             data-user-id="{{ user.id }}" data-username="{{ user.username }}"
                             data-firstname="{{ user.first_name }}" data-lastname="{{ user.last_name }}"
                             data-group="{% for group in user.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}">
@@ -77,7 +64,7 @@
             <form method="POST" action="{% url 'agregar_usuario' %}">
                 {% csrf_token %}
                 <div class="modal-header">
-                    <h4 class="modal-title" id="addUserModalLabel">Agregar Usuario</h4>
+                    <h5 class="modal-title" id="addUserModalLabel">Agregar Usuario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -122,7 +109,7 @@
             <form method="POST" action="{% url 'editar_usuario' %}">
                 {% csrf_token %}
                 <div class="modal-header">
-                    <h4 class="modal-title" id="editUserModalLabel">Editar Usuario</h4>
+                    <h5 class="modal-title" id="editUserModalLabel">Editar Usuario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -305,17 +292,11 @@
         font-size: 18px;  
         color:rgba(192, 0, 0, 0.75);  
     }
-    .form-label{
-        color:#122a4a;
-        font-weight: bold;
-    }
 </style>
 
 {% endblock %}
 
 {% block extra_js %}
-
-
 <script>
     // Búsqueda de usuarios en la tabla
     document.getElementById("searchInput").addEventListener("keyup", function() {

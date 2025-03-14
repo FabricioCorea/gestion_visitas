@@ -1,72 +1,102 @@
 {% extends 'layout/layout.html' %}
 
-{% block title %}>Editar Visita{% endblock %}
+{% block title %}Editar Visita{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h2>Editar Visita</h2>
+    <h4>Editar Visita</h4>
+    <hr>
 
-    <form method="POST" action="{% url 'nueva_visita' %}" enctype="multipart/form-data">
+    <form method="POST" action="{% url 'editar_visita' visita.id %}" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label for="motivo" class="form-label">Motivo de Visita</label>
-                <select class="form-control" id="motivo" name="motivo" required>
+                <select class="form-control select2" id="motivo" name="motivo" required>
+                    <option value="" disabled>Seleccione una opción</option>
                     {% for motivo in motivos %}
-                        <option value="{{ motivo.id }}">{{ motivo.descripcion }}</option>
+                        <option value="{{ motivo.id }}" {% if motivo.id == visita.motivo_id %}selected{% endif %}>{{ motivo.descripcion }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label for="area_departamento" class="form-label">Área o Departamento</label>
-                <select class="form-control" id="area_departamento" name="area_departamento" required>
+                <select class="form-control select2" id="area_departamento" name="area_departamento" required>
+                    <option value="" disabled>Seleccione una opción</option>
                     {% for area in areas %}
-                        <option value="{{ area.id }}">{{ area.nombre }}</option>
+                        <option value="{{ area.id }}" {% if area.id == visita.area_departamento_id %}selected{% endif %}>{{ area.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>                      
+            <div class="col-md-4">
+                <label for="persona_visitada" class="form-label">Persona Visitada</label>
+                <select class="form-control select2" id="persona_visitada" name="persona_visitada" required>
+                    <option value="" disabled>Seleccione una opción</option>
+                    {% for colaborador in colaboradores %}
+                        <option value="{{ colaborador.id }}" {% if colaborador.id == visita.persona_visitada_id %}selected{% endif %}>{{ colaborador.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
         <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="persona_visitada" class="form-label">Persona Visitada</label>
-                <input type="text" class="form-control" id="persona_visitada" name="persona_visitada" required>
-            </div>
             <div class="col-md-6">
                 <label for="fecha_visita" class="form-label">Fecha de Visita</label>
-                <input type="date" class="form-control" id="fecha_visita" name="fecha_visita" required>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <label for="hora_ingreso" class="form-label">Hora de Ingreso</label>
-                <input type="time" class="form-control" id="hora_ingreso" name="hora_ingreso" required>
-            </div>
-            <div class="col-md-3">
-                <label for="hora_salida" class="form-label">Hora de Salida</label>
-                <input type="time" class="form-control" id="hora_salida" name="hora_salida">
+                <input type="date" class="form-control" id="fecha_visita" name="fecha_visita" value="{{ visita.fecha_visita|date:'Y-m-d' }}" required>
             </div>
             <div class="col-md-6">
-                <label for="foto_documento_identificacion" class="form-label">Foto del Documento</label>
-                <input type="file" class="form-control" id="foto_documento_identificacion" name="foto_documento_identificacion">
+                <label for="hora_ingreso" class="form-label">Hora de Ingreso</label>
+                <input type="time" class="form-control" id="hora_ingreso" name="hora_ingreso" value="{{ visita.hora_ingreso }}" required>
             </div>
         </div>
-        <h3>Visitantes</h3>
+
+        <h5>Visitantes</h5>
         <div id="visitantes-container">
-            <div class="row visitante-row mb-3">
-                <div class="col-md-5">
-                    <input type="text" class="form-control" name="visitante_nombre[]" placeholder="Nombre del visitante" required>
+            {% if visitantes %}
+                {% for visitante in visitantes %}
+                <div class="row visitante-row mb-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="visitante_nombre[]" value="{{ visitante.nombre }}" required>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" name="visitante_documento[]" value="{{ visitante.documento_identificacion }}">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger remove-visitante">-</button>
+                    </div>
                 </div>
-                <div class="col-md-5">
-                    <input type="text" class="form-control" name="visitante_documento[]" placeholder="Documento de identificación">
+                {% endfor %}
+            {% else %}
+                <div class="row visitante-row mb-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="visitante_nombre[]" placeholder="Nombre del visitante" autocomplete="off" required>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" name="visitante_documento[]" placeholder="Documento de identificación" autocomplete="off">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger remove-visitante" style="display: none;">-</button>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-danger remove-visitante" style="display: none;">-</button>
-                </div>
-            </div>
+            {% endif %}
         </div>
         <button type="button" id="add-visitante" class="btn btn-secondary">+</button>
         <br><br>
-        <button type="submit" class="btn btn-primary">Registrar Visita</button>
+
+       {% comment %}  <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="foto_documento_identificacion" class="form-label">Foto del Documento</label>
+                <input type="file" class="form-control" id="foto_documento_identificacion" name="foto_documento_identificacion">
+                {% if visita.foto_documento_identificacion %}
+                    <p>Documento actual:</p>
+                    <img src="{{ visita.foto_documento_identificacion.url }}" alt="Foto Documento" style="max-width: 200px; border-radius: 5px;">
+                    <br>
+                    <a href="{{ visita.foto_documento_identificacion.url }}" target="_blank">Ver imagen completa</a>
+                {% endif %}
+            </div>
+        </div> {% endcomment %}
+
+        <button type="submit" class="btn btn-primary">Actualizar Visita</button>
+        <a href="{% url 'mis_visitas' %}" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 
@@ -80,9 +110,9 @@
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     }
 
-    h2, h3 {
-        text-align: center;
-        color: #184072;
+    h1, h2, h3, h4, h5, h6 {
+        color:#122a4a;
+        font-weight: bold;
         margin-bottom: 20px;
     }
 
@@ -93,6 +123,10 @@
 
     .btn-primary:hover {
         background-color: #122a4a;
+    }
+    .form-label{
+        color:#122a4a;
+        font-weight: bold;
     }
 </style>
 
@@ -105,32 +139,34 @@
         let newRow = document.createElement("div");
         newRow.classList.add("row", "visitante-row", "mb-3");
         newRow.innerHTML = `
-            <div class="col-md-5">
-                <input type="text" class="form-control" name="visitante_nombre[]" placeholder="Nombre del visitante" required>
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="visitante_nombre[]" placeholder="Nombre del visitante" autocomplete="off" required>
             </div>
             <div class="col-md-5">
-                <input type="text" class="form-control" name="visitante_documento[]" placeholder="Documento de identificación">
+                <input type="text" class="form-control" name="visitante_documento[]" placeholder="Documento de identificación" autocomplete="off">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-1">
                 <button type="button" class="btn btn-danger remove-visitante">-</button>
             </div>
         `;
         container.appendChild(newRow);
         updateRemoveButtons();
     });
-    
+
     document.addEventListener("click", function(event) {
         if (event.target.classList.contains("remove-visitante")) {
             event.target.parentElement.parentElement.remove();
             updateRemoveButtons();
         }
     });
-    
+
     function updateRemoveButtons() {
         let buttons = document.querySelectorAll(".remove-visitante");
-        buttons.forEach((btn, index) => {
-            btn.style.display = index === 0 ? "none" : "inline-block";
-        });
+        if (buttons.length > 1) {
+            buttons.forEach(btn => btn.style.display = "inline-block");
+        } else {
+            buttons[0].style.display = "none";
+        }
     }
 </script>
 {% endblock %}

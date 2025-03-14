@@ -1,51 +1,45 @@
 {% extends 'layout/layout.html' %}
 
-{% block title %}Registrar Nueva Visita{% endblock %}
+{% block title %}Registrar Nuevo Evento{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h4>Registrar Nueva Visita</h4>
+    <h4>Registrar Nuevo Evento</h4>
     <hr>
 
-    <form method="POST" action="{% url 'nueva_visita' %}" enctype="multipart/form-data">
+    <form method="POST" action="{% url 'nuevo_evento' %}" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row mb-3">
             <div class="col-md-4">
-                <label for="motivo" class="form-label">Motivo de Visita</label>
-                <select class="form-control select2" id="motivo" name="motivo" required>
-                    <option value="" selected disabled>Seleccione una opción</option>
-                    {% for motivo in motivos %}
-                        <option value="{{ motivo.id }}">{{ motivo.descripcion }}</option>
-                    {% endfor %}
-                </select>
+                <label for="nombre" class="form-label">Nombre del evento</label>
+                <input type="text" class="form-control" name="nombre" placeholder="Nombre del evento" autocomplete="off" required>
             </div>
             <div class="col-md-4">
-                <label for="area_departamento" class="form-label">Área o Departamento</label>
-                <select class="form-control select2" id="area_departamento" name="area_departamento" required>
-                    <option value="" selected disabled>Seleccione una opción</option>
-                    {% for area in areas %}
-                        <option value="{{ area.id }}">{{ area.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>                      
-            <div class="col-md-4">
-                <label for="persona_visitada" class="form-label">Persona Visitada</label>
-                <select class="form-control select2" id="persona_visitada" name="persona_visitada" required>
+                <label for="organizador" class="form-label">Organizador</label>
+                <select class="form-control select2" id="organizador" name="organizador" required>
                     <option value="" selected disabled>Seleccione una opción</option>
                     {% for colaborador in colaboradores %}
                         <option value="{{ colaborador.id }}">{{ colaborador.nombre }}</option>
                     {% endfor %}
                 </select>
-            </div>
+            </div>                     
         </div>
         <div class="row mb-3">
             <div class="col-md-3">
-                <label for="fecha_visita" class="form-label">Fecha de Visita</label>
-                <input type="date" class="form-control" id="fecha_visita" name="fecha_visita" required>
+                <label for="fecha_evento" class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="fecha_evento" name="fecha_evento" required>
             </div>
             <div class="col-md-3">
-                <label for="hora_ingreso" class="form-label">Hora de Ingreso</label>
-                <input type="time" class="form-control" id="hora_ingreso" name="hora_ingreso" required>
+                <label for="hora_inicio" class="form-label">Hora de Inicio</label>
+                <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" required>
+            </div>
+            <div class="col-md-3">
+                <label for="hora_fin" class="form-label">Hora de Finalización</label>
+                <input type="time" class="form-control" id="hora_fin" name="hora_fin" required>
+            </div>
+            <div class="col-md-4">
+                <label for="cantidad_visitantes" class="form-label">Cantidad de visitantes</label>
+                <input type="text" class="form-control" name="cantidad_visitantes" placeholder="Cantidad de visitantes" autocomplete="off" required>
             </div>
             {% comment %} <div class="col-md-6">
                 <label for="foto_documento_identificacion" class="form-label">Foto del Documento</label>
@@ -68,8 +62,8 @@
         </div>
         <button type="button" id="add-visitante" class="btn btn-secondary">+</button>
         <br><br>
-        <button type="submit" class="btn btn-primary">Registrar Visita</button>
-        <a href="{% url 'mis_visitas' %}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Registrar Evento</button>
+        <a href="{% url 'mis_eventos' %}" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 

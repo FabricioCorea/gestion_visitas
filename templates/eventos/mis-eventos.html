@@ -1,15 +1,15 @@
 {% extends 'layout/layout.html' %}
 
-{% block title %}Mis visitas{% endblock %}
+{% block title %}Mis eventos{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h3>Visitas agendadas</h3>
+    <h3>Eventos agendados</h3>
     <hr>
 
     <div class="actions">
-        <a class="btn btn-add" href="{% url 'nueva_visita' %}">Agregar visita</a>
-        <input type="text" id="searchInput" class="search-box" placeholder="Buscar visita...">
+        <a class="btn btn-add" href="{% url 'nuevo_evento' %}">Agregar evento</a>
+        <input type="text" id="searchInput" class="search-box" placeholder="Buscar evento...">
     </div>
     
     <div class="table-responsive">
@@ -17,12 +17,12 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Motivo de visita</th>
-                    <th>Área</th>
-                    <th>Persona visitada</th>
+                    <th>Evento</th>
+                    <th>Organizador</th>
+                    <th>Cantidad de personas a asistir</th>
                     <th>Fecha</th>
-                    <th>Hora de ingreso</th>
-                    <th>Hora de salida</th>
+                    <th>Hora inicio</th>
+                    <th>Hora fin</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
