@@ -59,3 +59,62 @@ def nuevoEvento(request):
     return render(request, "eventos/nuevo-evento.html", {
         "colaboradores": colaboradores
     })
+
+@login_required
+def editarEvento(request, evento_id):
+    evento = get_object_or_404(EventoCapacitacion, id=evento_id)
+
+    if request.method == "POST":
+        # Obtener datos del formulario
+        visitante_nombres = request.POST.getlist("visitante_nombre[]")
+        visitante_documentos = request.POST.getlist("visitante_documento[]")
+        nombre = request.POST.get("nombre")
+        organizador_id = request.POST.get("organizador")
+        fecha_evento = request.POST.get("fecha_evento")
+        hora_inicio = request.POST.get("hora_inicio")
+        hora_fin = request.POST.get("hora_fin")
+        cantidad_visitantes = request.POST.get("cantidad_visitantes")
+
+        # Actualizar la información del evento
+        evento.nombre = nombre
+        evento.organizador = Colaborador.objects.get(id=organizador_id).nombre  # Elimina la coma
+        evento.fecha = fecha_evento
+        evento.hora_inicio = hora_inicio
+        evento.hora_fin = hora_fin
+        evento.cantidad_visitantes = cantidad_visitantes
+        evento.save()
+
+        # 🔹 Eliminar visitantes previos antes de agregar los nuevos
+        EventoVisitante.objects.filter(id_evento=evento).delete()
+
+        # 🔹 Agregar los nuevos visitantes
+        for nombre, documento in zip(visitante_nombres, visitante_documentos):
+            EventoVisitante.objects.create(
+                id_evento=evento,
+                nombre_visitante=nombre,
+                documento_identificacion=documento
+            )
+
+        messages.success(request, "Evento actualizado correctamente.")
+        return redirect("mis_eventos")
+
+    # 🔹 Obtener datos para el formulario
+    colaboradores = Colaborador.objects.filter(estado="activo")
+
+    # 🔹 Obtener visitantes de la visita actual
+    visitantes = EventoVisitante.objects.filter(id_evento=evento)
+
+    return render(request, "eventos/editar-evento.html", {
+        "evento": evento,
+        "colaboradores": colaboradores,
+        "visitantes": visitantes
+    })
+@login_required
+def eliminarEvento(request, evento_id):
+    if request.method == "POST":
+        evento = get_object_or_404(EventoCapacitacion, id=evento_id)
+        evento.delete()
+        message = "Evento eliminado correctamente."
+        return JsonResponse({"success": True, "message": message})
+    
+    return JsonResponse({"success": False, "message": "Método no permitido."}, status=400)

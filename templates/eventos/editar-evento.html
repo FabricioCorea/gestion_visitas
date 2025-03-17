@@ -1,0 +1,137 @@
+{% extends 'layout/layout.html' %}
+
+{% block title %}Editar Evento{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h4>Editar Evento</h4>
+    <hr>
+
+    <form method="POST" action="{% url 'editar_evento' evento.id %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="nombre" class="form-label">Nombre del evento</label>
+                <input type="text" class="form-control" name="nombre" value="{{ evento.nombre }}" placeholder="Nombre del evento" autocomplete="off" required>
+            </div>
+            <div class="col-md-4">
+                <label for="organizador" class="form-label">Organizador</label>
+                <select class="form-control select2" id="organizador" name="organizador" required>
+                    <option value="" disabled>Seleccione una opción</option>
+                    {% for colaborador in colaboradores %}
+                        <option value="{{ colaborador.id }}" {% if evento.organizador == colaborador.nombre %}selected{% endif %}>{{ colaborador.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>                     
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="fecha_evento" class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="fecha_evento" name="fecha_evento" value="{{ evento.fecha|date:'Y-m-d' }}" required>
+            </div>
+            <div class="col-md-3">
+                <label for="hora_inicio" class="form-label">Hora de Inicio</label>
+                <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" value="{{ evento.hora_inicio|time:'H:i' }}" required>
+            </div>
+            <div class="col-md-3">
+                <label for="hora_fin" class="form-label">Hora de Finalización</label>
+                <input type="time" class="form-control" id="hora_fin" name="hora_fin" value="{{ evento.hora_fin|time:'H:i' }}" required>
+            </div>
+            <div class="col-md-4">
+                <label for="cantidad_visitantes" class="form-label">Cantidad de visitantes</label>
+                <input type="text" class="form-control" name="cantidad_visitantes" value="{{ evento.cantidad_visitantes }}" placeholder="Cantidad de visitantes" autocomplete="off" required>
+            </div>
+        </div>
+        <h5>Visitantes</h5>
+        <div id="visitantes-container">
+            {% for visitante in visitantes %}
+            <div class="row visitante-row mb-3">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="visitante_nombre[]" value="{{ visitante.nombre_visitante }}" placeholder="Nombre del visitante" autocomplete="off" required>
+                </div>
+                <div class="col-md-5">
+                    <input type="text" class="form-control" name="visitante_documento[]" value="{{ visitante.documento_identificacion }}" placeholder="Documento de identificación" autocomplete="off">
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger remove-visitante">-</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-visitante" class="btn btn-secondary">+</button>
+        <br><br>
+        <button type="submit" class="btn btn-primary">Actualizar Evento</button>
+        <a href="{% url 'mis_eventos' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color:#122a4a;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .btn-primary {
+        background-color: #184072;
+        border-color: #184072;
+    }
+
+    .btn-primary:hover {
+        background-color: #122a4a;
+    }
+    .form-label{
+        color:#122a4a;
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById("add-visitante").addEventListener("click", function() {
+        let container = document.getElementById("visitantes-container");
+        let newRow = document.createElement("div");
+        newRow.classList.add("row", "visitante-row", "mb-3");
+        newRow.innerHTML = `
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="visitante_nombre[]" placeholder="Nombre del visitante" autocomplete="off" required>
+            </div>
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="visitante_documento[]" placeholder="Documento de identificación" autocomplete="off">
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-danger remove-visitante">-</button>
+            </div>
+        `;
+        container.appendChild(newRow);
+        updateRemoveButtons();
+    });
+
+    document.addEventListener("click", function(event) {
+        if (event.target.classList.contains("remove-visitante")) {
+            event.target.parentElement.parentElement.remove();
+            updateRemoveButtons();
+        }
+    });
+
+    function updateRemoveButtons() {
+        let buttons = document.querySelectorAll(".remove-visitante");
+        if (buttons.length > 1) {
+            buttons.forEach(btn => btn.style.display = "inline-block");
+        } else {
+            buttons[0].style.display = "none";
+        }
+    }
+</script>
+{% endblock %}

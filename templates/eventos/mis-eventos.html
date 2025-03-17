@@ -19,7 +19,7 @@
                     <th>#</th>
                     <th>Evento</th>
                     <th>Organizador</th>
-                    <th>Cantidad de personas a asistir</th>
+                    <th>N° de Asistentes</th>
                     <th>Fecha</th>
                     <th>Hora inicio</th>
                     <th>Hora fin</th>
@@ -27,21 +27,21 @@
                 </tr>
             </thead>
             <tbody>
-                {% for visita in visitas %}
+                {% for evento in eventos %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ visita.motivo }}</td>
-                    <td>{{ visita.area_departamento }}</td>
-                    <td>{{ visita.persona_visitada }}</td>
-                    <td>{{ visita.fecha_visita }}</td>
-                    <td>{{ visita.hora_ingreso }}</td>
-                    <td>{{ visita.hora_salida }}</td>
+                    <td>{{ evento.nombre }}</td>
+                    <td>{{ evento.organizador }}</td>
+                    <td>{{ evento.cantidad_visitantes }}</td>
+                    <td>{{ evento.fecha }}</td>
+                    <td>{{ evento.hora_inicio }}</td>
+                    <td>{{ evento.hora_fin }}</td>
                     <td>
-                        <a href="{% url 'editar_visita' visita.id %}" class="btn btn-edit">
+                        <a href="{% url 'editar_evento' evento.id %}" class="btn btn-edit">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <button class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteVisitaModal"
-                            data-visita-id="{{ visita.id }}" data-username="{{ visita.persona_visitada }}">
+                        <button class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteEventoModal"
+                            data-evento-id="{{ evento.id }}" data-username="{{ evento.organizador }}">
                             <i class="fas fa-trash-alt"></i>  
                         </button>                    
                     </td>
@@ -217,21 +217,21 @@
             row.style.display = userData.includes(searchValue) ? "" : "none";
         });
     });
-    // Alerta de confirmación para eliminar visita
+    // Alerta de confirmación para eliminar el evento
     document.querySelectorAll('.btn-delete').forEach(deleteButton => {
         deleteButton.addEventListener('click', function() {
-            let visitaId = this.getAttribute('data-visita-id');
+            let eventoId = this.getAttribute('data-evento-id');
     
             Swal.fire({
                 title: '¿Está seguro?',
-                text: '¿Quiere eliminar la visita?',
+                text: '¿Quiere eliminar el evento?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Sí, eliminar',
                 cancelButtonText: 'No, cancelar',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`/mis_visitas/eliminar/${visitaId}/`, {  
+                    fetch(`/mis_eventos/eliminar/${eventoId}/`, {  
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",

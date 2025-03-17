@@ -23,6 +23,8 @@ urlpatterns = [
 
     path('MisEventos/', vistaEventos.eventos, name='mis_eventos'),
     path('nuevoEvento/', vistaEventos.nuevoEvento, name='nuevo_evento'),
+    path('editarEvento/<int:evento_id>/', vistaEventos.editarEvento, name='editar_evento'),
+    path('mis_eventos/eliminar/<int:evento_id>/', vistaEventos.eliminarEvento, name='eliminar_evento'),
 
     path('login/', vistasUsuarios.user_login, name='login'),  
     path('logout/', vistasUsuarios.user_logout, name='logout'),  
