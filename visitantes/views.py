@@ -5,6 +5,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from datetime import date
+from django.utils.timezone import localdate
 from visitantes.models import *
 # Vista de inicio
 @login_required
@@ -13,9 +15,14 @@ def index(request):
 # Vista de visitas
 @login_required
 def visitas(request):
-    visitas = Visita.objects.filter(usuario_registro=request.user.username)
+    hoy = localdate()  # Fecha actual
+    visitas_hoy = Visita.objects.filter(usuario_registro=request.user.username, fecha_visita=hoy)
+    proximas_visitas = Visita.objects.filter(usuario_registro=request.user.username, fecha_visita__gt=hoy)
+
     return render(request, 'visitantes/mis-visitas.html', {
-        "visitas": visitas})
+        "visitas_hoy": visitas_hoy,
+        "proximas_visitas": proximas_visitas
+    })
 # Vista de agregar visita
 @login_required
 def nuevaVisita(request):

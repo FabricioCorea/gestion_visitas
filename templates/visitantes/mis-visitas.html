@@ -4,52 +4,121 @@
 
 {% block content %}
 <div class="container">
-    <h3>Visitas agendadas</h3>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Mis Visitas</h3>
+        <div class="d-flex">
+            <input type="text" id="searchInput" class="search-box me-2" placeholder="Buscar visita...">
+            <a class="btn btn-add" href="{% url 'nueva_visita' %}">Agregar visita</a>
+        </div>
+    </div>
     <hr>
 
-    <div class="actions">
-        <a class="btn btn-add" href="{% url 'nueva_visita' %}">Agregar visita</a>
-        <input type="text" id="searchInput" class="search-box" placeholder="Buscar visita...">
-    </div>
-    
-    <div class="table-responsive">
-        <table id="userTable">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Motivo de visita</th>
-                    <th>Área</th>
-                    <th>Persona visitada</th>
-                    <th>Fecha</th>
-                    <th>Hora de ingreso</th>
-                    <th>Hora de salida</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for visita in visitas %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ visita.motivo }}</td>
-                    <td>{{ visita.area_departamento }}</td>
-                    <td>{{ visita.persona_visitada }}</td>
-                    <td>{{ visita.fecha_visita }}</td>
-                    <td>{{ visita.hora_ingreso }}</td>
-                    <td>{{ visita.hora_salida }}</td>
-                    <td>
-                        <a href="{% url 'editar_visita' visita.id %}" class="btn btn-edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <button class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteVisitaModal"
-                            data-visita-id="{{ visita.id }}" data-username="{{ visita.persona_visitada }}">
-                            <i class="fas fa-trash-alt"></i>  
-                        </button>                    
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            
-        </table>
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="visitasTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="hoy-tab" data-bs-toggle="tab" data-bs-target="#hoy" type="button" role="tab" aria-controls="hoy" aria-selected="true">
+                Visitas de Hoy <span class="badge bg-secondary" id="hoy-count">0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="proximas-tab" data-bs-toggle="tab" data-bs-target="#proximas" type="button" role="tab" aria-controls="proximas" aria-selected="false">
+                Próximas Visitas <span class="badge bg-secondary" id="proximas-count">0</span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3" id="visitasTabsContent">
+        <!-- Visitas de Hoy -->
+        <div class="tab-pane fade show active" id="hoy" role="tabpanel" aria-labelledby="hoy-tab">
+            <div class="table-responsive">
+                <table id="visitasHoyTable" class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Motivo de visita</th>
+                            <th>Área</th>
+                            <th>Persona visitada</th>
+                            <th>Fecha</th>
+                            <th>Hora de ingreso</th>
+                            <th>Hora de salida</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for visita in visitas_hoy %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ visita.motivo }}</td>
+                            <td>{{ visita.area_departamento }}</td>
+                            <td>{{ visita.persona_visitada }}</td>
+                            <td>{{ visita.fecha_visita }}</td>
+                            <td>{{ visita.hora_ingreso }}</td>
+                            <td>{{ visita.hora_salida }}</td>
+                            <td>
+                                <a href="{% url 'editar_visita' visita.id %}" class="btn btn-edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteVisitaModal"
+                                    data-visita-id="{{ visita.id }}" data-username="{{ visita.persona_visitada }}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>                    
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">No hay visitas programadas para hoy.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Próximas Visitas -->
+        <div class="tab-pane fade" id="proximas" role="tabpanel" aria-labelledby="proximas-tab">
+            <div class="table-responsive">
+                <table id="proximasVisitasTable" class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Motivo de visita</th>
+                            <th>Área</th>
+                            <th>Persona visitada</th>
+                            <th>Fecha</th>
+                            <th>Hora de ingreso</th>
+                            <th>Hora de salida</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for visita in proximas_visitas %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ visita.motivo }}</td>
+                            <td>{{ visita.area_departamento }}</td>
+                            <td>{{ visita.persona_visitada }}</td>
+                            <td>{{ visita.fecha_visita }}</td>
+                            <td>{{ visita.hora_ingreso }}</td>
+                            <td>{{ visita.hora_salida }}</td>
+                            <td>
+                                <a href="{% url 'editar_visita' visita.id %}" class="btn btn-edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteVisitaModal"
+                                    data-visita-id="{{ visita.id }}" data-username="{{ visita.persona_visitada }}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>                    
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">No hay próximas visitas programadas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -207,15 +276,36 @@
 
 {% block extra_js %}
 <script>
-    // Búsqueda de visitas en la tabla
+    // Búsqueda de datos para todos los tabs
     document.getElementById("searchInput").addEventListener("keyup", function() {
         let searchValue = this.value.toLowerCase();
-        let rows = document.querySelectorAll("#userTable tbody tr");
+        let hoyCount = 0;
+        let proximasCount = 0;
 
-        rows.forEach(row => {
-            let userData = row.textContent.toLowerCase();
-            row.style.display = userData.includes(searchValue) ? "" : "none";
-        });
+        // Función para buscar y contar coincidencias
+        function filtrarTabla(selector, contadorId) {
+            let rows = document.querySelectorAll(selector);
+            let count = 0;
+
+            rows.forEach(row => {
+                let userData = row.textContent.toLowerCase();
+                let match = userData.includes(searchValue);
+                row.style.display = match ? "" : "none";
+
+                if (match) count++;
+            });
+
+            document.getElementById(contadorId).textContent = count;  // Actualizar el contador
+        }
+
+        // Aplicar la búsqueda en ambas tablas
+        filtrarTabla("#visitasHoyTable tbody tr", "hoy-count");
+        filtrarTabla("#proximasVisitasTable tbody tr", "proximas-count");
+    });
+
+    // Llamar a la función una vez al cargar la página para mostrar la cantidad inicial
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("searchInput").dispatchEvent(new Event("keyup"));
     });
     // Alerta de confirmación para eliminar visita
     document.querySelectorAll('.btn-delete').forEach(deleteButton => {
@@ -257,6 +347,7 @@
                 }
             });
         });
-    });      
+    });   
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"   
 </script>
 {% endblock %}

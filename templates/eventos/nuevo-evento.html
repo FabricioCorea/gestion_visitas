@@ -10,11 +10,11 @@
     <form method="POST" action="{% url 'nuevo_evento' %}" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row mb-3">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label for="nombre" class="form-label">Nombre del evento</label>
                 <input type="text" class="form-control" name="nombre" placeholder="Nombre del evento" autocomplete="off" required>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label for="organizador" class="form-label">Organizador</label>
                 <select class="form-control select2" id="organizador" name="organizador" required>
                     <option value="" selected disabled>Seleccione una opción</option>
@@ -25,28 +25,20 @@
             </div>                     
         </div>
         <div class="row mb-3">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label for="fecha_evento" class="form-label">Fecha</label>
                 <input type="date" class="form-control" id="fecha_evento" name="fecha_evento" required>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label for="hora_inicio" class="form-label">Hora de Inicio</label>
                 <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" required>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label for="hora_fin" class="form-label">Hora de Finalización</label>
                 <input type="time" class="form-control" id="hora_fin" name="hora_fin" required>
             </div>
-            <div class="col-md-4">
-                <label for="cantidad_visitantes" class="form-label">Cantidad de visitantes</label>
-                <input type="text" class="form-control" name="cantidad_visitantes" placeholder="Cantidad de visitantes" autocomplete="off" required>
-            </div>
-            {% comment %} <div class="col-md-6">
-                <label for="foto_documento_identificacion" class="form-label">Foto del Documento</label>
-                <input type="file" class="form-control" id="foto_documento_identificacion" name="foto_documento_identificacion">
-            </div> {% endcomment %}
         </div>
-        <h5>Visitantes</h5>
+        <h5>Visitantes <span id="cantidad-visitantes-label" class="badge bg-secondary">0</span></h5>
         <div id="visitantes-container">
             <div class="row visitante-row mb-3">
                 <div class="col-md-6">
@@ -95,45 +87,80 @@
         color:#122a4a;
         font-weight: bold;
     }
+
+    .form-control {
+        height: 38px; /* Asegurar la misma altura que los input */
+        line-height: 1.5; /* Ajustar alineación vertical */
+        padding: 6px 12px; /* Ajusta si es necesario */
+        font-size: 16px; /* Tamaño de texto consistente */
+        text-align: left;
+    }
+    
+    .form-control:focus {
+        border-color: #80bdff !important; /* Mismo efecto de focus que los inputs */
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+    }
+
+    .select2-container .select2-selection--single {
+        border: 1px solid #ced4da !important;
+        height: 38px !important;
+        border-radius: 5px;
+    }
+    
+    .select2-container--default .select2-selection--single:focus {
+        border-color: #80bdff !important;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+    }
 </style>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.getElementById("add-visitante").addEventListener("click", function() {
-        let container = document.getElementById("visitantes-container");
-        let newRow = document.createElement("div");
-        newRow.classList.add("row", "visitante-row", "mb-3");
-        newRow.innerHTML = `
-            <div class="col-md-6">
-                <input type="text" class="form-control" name="visitante_nombre[]" placeholder="Nombre del visitante" autocomplete="off" required>
-            </div>
-            <div class="col-md-5">
-                <input type="text" class="form-control" name="visitante_documento[]" placeholder="Documento de identificación" autocomplete="off">
-            </div>
-            <div class="col-md-1">
-                <button type="button" class="btn btn-danger remove-visitante">-</button>
-            </div>
-        `;
-        container.appendChild(newRow);
-        updateRemoveButtons();
-    });
+    document.addEventListener("DOMContentLoaded", function() {
+        actualizarCantidadVisitantes();
 
-    document.addEventListener("click", function(event) {
-        if (event.target.classList.contains("remove-visitante")) {
-            event.target.parentElement.parentElement.remove();
+        document.getElementById("add-visitante").onclick = function() {
+            agregarVisitante();
+        };
+
+        document.addEventListener("click", function(event) {
+            if (event.target.classList.contains("remove-visitante")) {
+                event.target.parentElement.parentElement.remove();
+                actualizarCantidadVisitantes();
+                updateRemoveButtons();
+            }
+        });
+
+        function agregarVisitante() {
+            let container = document.getElementById("visitantes-container");
+            let newRow = document.createElement("div");
+            newRow.classList.add("row", "visitante-row", "mb-3");
+            newRow.innerHTML = `
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="visitante_nombre[]" placeholder="Nombre del visitante" autocomplete="off" required>
+                </div>
+                <div class="col-md-5">
+                    <input type="text" class="form-control" name="visitante_documento[]" placeholder="Documento de identificación" autocomplete="off">
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger remove-visitante">-</button>
+                </div>
+            `;
+            container.appendChild(newRow);
+            actualizarCantidadVisitantes();
             updateRemoveButtons();
         }
-    });
 
-    function updateRemoveButtons() {
-        let buttons = document.querySelectorAll(".remove-visitante");
-        if (buttons.length > 1) {
-            buttons.forEach(btn => btn.style.display = "inline-block");
-        } else {
-            buttons[0].style.display = "none";
+        function actualizarCantidadVisitantes() {
+            let cantidad = document.querySelectorAll(".visitante-row").length;
+            document.getElementById("cantidad-visitantes-label").innerText = cantidad;
         }
-    }
+
+        function updateRemoveButtons() {
+            let buttons = document.querySelectorAll(".remove-visitante");
+            buttons.forEach(btn => btn.style.display = buttons.length > 1 ? "inline-block" : "none");
+        }
+    });
 </script>
 {% endblock %}

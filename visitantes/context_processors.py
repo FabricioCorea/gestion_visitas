@@ -10,6 +10,8 @@ def active_menu(request):
     active_pages = {
         "inicio": ["inicio"],
         "mis_visitas": ["mis_visitas", "nueva_visita", "editar_visita"],
+        "mis_eventos": ["mis_eventos", "nuevo_evento", "editar_evento"],
+        "pases": ["pases", "nuevo_pase", "editar_pase"],
         "usuarios": ["usuarios", "agregar_usuario", "editar_usuario", "eliminar_usuario"],
     }
 

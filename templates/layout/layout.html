@@ -74,6 +74,11 @@
                     <i class="fas fa-ban"></i> Lista negra
                 </a>
             </li>
+            <li class="{% if active_page == 'pases' %}active{% endif %}">
+                <a href="{% url 'pases' %}" class="sidebar-link">
+                    <i class="fas fa-key"></i> Pases de acceso
+                </a>
+            </li>
             <li class="{% if active_page == 'usuarios' %}active{% endif %}">
                 <a href="{% url 'usuarios' %}" class="sidebar-link">
                     <i class="fas fa-user"></i> Usuarios

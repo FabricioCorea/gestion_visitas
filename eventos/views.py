@@ -10,7 +10,7 @@ from eventos.models import *
 
 @login_required
 def eventos(request):
-    eventos = EventoCapacitacion.objects.all()
+    eventos = EventoCapacitacion.objects.filter(usuario_registro=request.user.username)
     return render(request, 'eventos/mis-eventos.html', {
         "eventos": eventos})
 @login_required
@@ -24,12 +24,14 @@ def nuevoEvento(request):
         fecha_evento = request.POST.get("fecha_evento")
         hora_inicio = request.POST.get("hora_inicio")
         hora_fin = request.POST.get("hora_fin")
-        cantidad_visitantes = request.POST.get("cantidad_visitantes")
+
+        # Calcular cantidad de visitantes dinámicamente
+        cantidad_visitantes = len(visitante_nombres)
 
         # Crear el evento
         evento = EventoCapacitacion.objects.create(
-            nombre= nombre,
-            organizador=Colaborador.objects.get(id= organizador_id).nombre,
+            nombre=nombre,
+            organizador=Colaborador.objects.get(id=organizador_id).nombre,
             fecha=fecha_evento,
             hora_inicio=hora_inicio,
             hora_fin=hora_fin,
@@ -45,7 +47,7 @@ def nuevoEvento(request):
                 defaults={"nombre_visitante": nombre, "id_evento": evento}
             )
             
-            if not created:  # Si ya existía, hay que asignarle el evento
+            if not created:  # Si ya existía, asignarle el evento
                 visitante.id_evento = evento
                 visitante.save()
             visitantes_guardados.append(visitante)
@@ -60,6 +62,7 @@ def nuevoEvento(request):
         "colaboradores": colaboradores
     })
 
+
 @login_required
 def editarEvento(request, evento_id):
     evento = get_object_or_404(EventoCapacitacion, id=evento_id)
@@ -73,21 +76,23 @@ def editarEvento(request, evento_id):
         fecha_evento = request.POST.get("fecha_evento")
         hora_inicio = request.POST.get("hora_inicio")
         hora_fin = request.POST.get("hora_fin")
-        cantidad_visitantes = request.POST.get("cantidad_visitantes")
+
+        # Calcular cantidad de visitantes dinámicamente
+        cantidad_visitantes = len(visitante_nombres)
 
         # Actualizar la información del evento
         evento.nombre = nombre
-        evento.organizador = Colaborador.objects.get(id=organizador_id).nombre  # Elimina la coma
+        evento.organizador = Colaborador.objects.get(id=organizador_id).nombre
         evento.fecha = fecha_evento
         evento.hora_inicio = hora_inicio
         evento.hora_fin = hora_fin
         evento.cantidad_visitantes = cantidad_visitantes
         evento.save()
 
-        # 🔹 Eliminar visitantes previos antes de agregar los nuevos
+        # Eliminar visitantes previos antes de agregar los nuevos
         EventoVisitante.objects.filter(id_evento=evento).delete()
 
-        # 🔹 Agregar los nuevos visitantes
+        # Agregar los nuevos visitantes
         for nombre, documento in zip(visitante_nombres, visitante_documentos):
             EventoVisitante.objects.create(
                 id_evento=evento,
@@ -98,10 +103,10 @@ def editarEvento(request, evento_id):
         messages.success(request, "Evento actualizado correctamente.")
         return redirect("mis_eventos")
 
-    # 🔹 Obtener datos para el formulario
+    # Obtener datos para el formulario
     colaboradores = Colaborador.objects.filter(estado="activo")
 
-    # 🔹 Obtener visitantes de la visita actual
+    # Obtener visitantes del evento actual
     visitantes = EventoVisitante.objects.filter(id_evento=evento)
 
     return render(request, "eventos/editar-evento.html", {
@@ -109,6 +114,7 @@ def editarEvento(request, evento_id):
         "colaboradores": colaboradores,
         "visitantes": visitantes
     })
+
 @login_required
 def eliminarEvento(request, evento_id):
     if request.method == "POST":

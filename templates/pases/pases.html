@@ -1,0 +1,424 @@
+{% extends 'layout/layout.html' %}
+
+{% block title %}Lista de pases de acceso{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h3>Gestión de pases de acceso</h3>
+    <hr>
+
+    <div class="actions">
+        <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addPaseModal">Agregar Pase</button>
+        <input type="text" id="searchInput" class="search-box" placeholder="Buscar pase...">
+    </div>
+
+    <div class="table-responsive">
+        <table id="paseTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Número de pase</th>
+                    <th>Lugares de acceso</th>
+                    <th>Estado de Uso</th>
+                    <th>Estado de Actividad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pase in pases %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ pase.numero_pase }}</td>
+                    <td>{{ pase.lugares_acceso }}</td>
+                    <td>{{ pase.estado_pase }}</td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" class="toggle-status" data-pase-id="{{ pase.id }}" {% if pase.estado == 'activo' %}checked{% endif %}>
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <button class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#editPaseModal"
+                            data-pase-id="{{ pase.id }}" data-numero-pase="{{ pase.numero_pase }}"
+                            data-lugares-acceso="{{ pase.lugares_acceso }}" data-estado-pase="{{ pase.estado_pase }}"
+                            data-estado="{{ pase.estado }}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deletePaseModal"
+                            data-pase-id="{{ pase.id }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>                    
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para agregar pase -->
+<div class="modal fade" id="addPaseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'nuevo_pase' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h4 class="modal-title">Agregar Pase</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Número de pase</label>
+                        <input type="text" class="form-control" name="numero_pase" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Lugares de acceso</label>
+                        <input type="text" class="form-control" name="lugares_acceso" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado de Uso</label>
+                        <select class="form-control" name="estado_pase">
+                            <option value="disponible">Disponible</option>
+                            <option value="en uso">En uso</option>
+                            <option value="dañado">Dañado</option>
+                            <option value="extraviado">Extraviado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-control" name="estado">
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Modal para editar pase -->
+<div class="modal fade" id="editPaseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'editar_pase' 0 %}" id="editPaseForm">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h4 class="modal-title">Editar Pase</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="pase_id" id="editPaseId">
+                    <div class="mb-3">
+                        <label class="form-label">Número de pase</label>
+                        <input type="text" class="form-control" name="numero_pase" id="editNumeroPase" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Lugares de acceso</label>
+                        <input type="text" class="form-control" name="lugares_acceso" id="editLugaresAcceso" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado de Uso</label>
+                        <select class="form-control" name="estado_pase" id="editEstadoPase">
+                            <option value="disponible">Disponible</option>
+                            <option value="en uso">En uso</option>
+                            <option value="dañado">Dañado</option>
+                            <option value="extraviado">Extraviado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-control" name="estado" id="editEstado">
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<style>
+    /* Estilos para la tabla de usuarios */
+    .container {
+        width: 100%;
+        max-width: 1100px;
+        margin: auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color:#122a4a;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        color: white;
+    }
+
+    .btn-add {
+        background: #184072;
+        color: white;
+    }
+
+    .btn-add:hover {
+        background: #184072;
+        color: white;
+    }
+
+    .search-box {
+        padding: 8px;
+        width: 250px;
+        border: 1px solid #184072;
+        border-radius: 5px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 10px;  
+        border: 1px solid #ddd; 
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 10px;  
+        overflow: hidden;
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        
+    }
+
+    th {
+        background: #184072;
+        color: white;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Estilos para el switch (toggle) */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 34px;
+        height: 20px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #4CAF50;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(14px);
+    }
+    .btn-edit {
+        background: transparent;  
+        border: none;              
+        padding: 0;                
+        cursor: pointer;         
+    }
+    
+    .btn-edit i {
+        font-size: 18px;  
+        color: #e67e22;  
+    }
+    .btn-delete {
+        background: transparent;  
+        border: none;              
+        padding: 0;                
+        cursor: pointer;         
+    }
+    
+    .btn-delete i {
+        font-size: 18px;  
+        color:rgba(192, 0, 0, 0.75);  
+    }
+    .form-label{
+        color:#122a4a;
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Búsqueda en la tabla
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+        let searchValue = this.value.toLowerCase();
+        let rows = document.querySelectorAll("#paseTable tbody tr");
+
+        rows.forEach(row => {
+            let userData = row.textContent.toLowerCase();
+            row.style.display = userData.includes(searchValue) ? "" : "none";
+        });
+    });
+
+    // Para editar
+    document.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', function() {
+            let paseId = this.getAttribute('data-pase-id');
+            let numeroPase = this.getAttribute('data-numero-pase');
+            let lugaresAcceso = this.getAttribute('data-lugares-acceso');
+            let estadoPase = this.getAttribute('data-estado-pase');
+            let estado = this.getAttribute('data-estado');
+
+            document.getElementById('editPaseId').value = paseId;
+            document.getElementById('editNumeroPase').value = numeroPase;
+            document.getElementById('editLugaresAcceso').value = lugaresAcceso;
+            document.getElementById('editEstadoPase').value = estadoPase;
+            document.getElementById('editEstado').value = estado;
+
+            document.getElementById('editPaseForm').action = `{% url 'editar_pase' 0 %}`.replace('0', paseId);
+        });
+    });
+
+    // Alerta de confirmación para activar/desactivar pase
+    document.querySelectorAll('.toggle-status').forEach(switchButton => {
+        switchButton.addEventListener('change', function() {
+            let paseId = this.getAttribute('data-pase-id');
+            let isChecked = this.checked;
+
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: `¿Quiere cambiar el estado del pase a ${isChecked ? 'Activo' : 'Inactivo'}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, cambiar',
+                cancelButtonText: 'No, cancelar',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/pases/cambiar_estado/${paseId}/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: "LISTO!",
+                                text: data.message,
+                                icon: "success",
+                                showConfirmButton: false,
+                                timer: 2500
+                            }).then(() => {
+                                location.reload(); 
+                            });
+                        } else {
+                            Swal.fire("Error", data.message, "error");
+                            this.checked = !isChecked;
+                        }
+                    });
+                } else {
+                    this.checked = !isChecked;
+                }
+            });
+        });
+    });
+    
+    // Alerta de confirmación para eliminar usuario
+    document.querySelectorAll('.btn-delete').forEach(deleteButton => {
+        deleteButton.addEventListener('click', function() {
+            let paseId = this.getAttribute('data-pase-id');
+    
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: '¿Quiere eliminar el pase?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'No, cancelar',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/pases/eliminar/${paseId}/`, {  
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        }
+                    })
+                    .then(response => response.json())  
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: "LISTO!",
+                                text: data.message,
+                                icon: "success",
+                                showConfirmButton: false,
+                                timer: 2500
+                            }).then(() => {
+                                location.reload(); 
+                            });
+                        } else {
+                            Swal.fire("Error", data.message, "error");
+                        }
+                    });
+                }
+            });
+        });
+    }); 
+</script>
+{% endblock %}
